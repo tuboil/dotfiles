@@ -1,0 +1,131 @@
+# ~/.bashrc : exécuté par bash(1) pour les shells non connectés (non-login).
+# Voir /usr/share/doc/bash/examples/startup-files (paquet bash-doc)
+# pour des exemples.
+
+# Si le shell n'est pas interactif, ne rien faire
+case $- in
+    *i*) ;;
+      *) return;;
+esac
+
+# Ne pas enregistrer les doublons ni les lignes commençant par un espace
+# Voir bash(1) pour plus d'options
+HISTCONTROL=ignoreboth
+
+# Ajouter à l'historique sans écraser le fichier
+shopt -s histappend
+
+# Réglage de la taille de l'historique (voir HISTSIZE et HISTFILESIZE dans bash(1))
+HISTSIZE=10000
+HISTFILESIZE=20000
+
+# Vérifier la taille de la fenêtre après chaque commande et,
+# si nécessaire, mettre à jour LINES et COLUMNS
+shopt -s checkwinsize
+
+# Si activé, le motif "**" utilisé dans les chemins
+# correspond à tous les fichiers et dossiers/sous-dossiers
+#shopt -s globstar
+
+# Rendre less plus convivial pour les fichiers non texte, voir lesspipe(1)
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+# Définir la variable identifiant le chroot utilisé
+# (employée dans l'invite ci-dessous)
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+# Définir une invite améliorée (sans couleur sauf si support détecté)
+case "$TERM" in
+    xterm-color|*-256color) color_prompt=yes;;
+esac
+
+# Décommentez pour forcer une invite colorée si le terminal le permet
+# Désactivé par défaut pour éviter les distractions :
+# le focus doit rester sur les commandes affichées
+#force_color_prompt=yes
+
+if [ -n "$force_color_prompt" ]; then
+    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+        # Support des couleurs détecté
+        color_prompt=yes
+    else
+        color_prompt=
+    fi
+fi
+
+# Définition de l'invite de commande
+if [ "$color_prompt" = yes ]; then
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+else
+    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+fi
+
+unset color_prompt force_color_prompt
+
+# Si terminal xterm/rxvt, définir le titre de la fenêtre : utilisateur@hôte:répertoire
+case "$TERM" in
+xterm*|rxvt*)
+    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    ;;
+*)
+    ;;
+esac
+
+# Activer la couleur pour ls et ajouter quelques alias utiles
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+
+    alias ls='ls --color=auto'
+    #alias dir='dir --color=auto'
+    #alias vdir='vdir --color=auto'
+
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+# Couleurs des erreurs/avertissements GCC
+#export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+
+# Alias supplémentaires pour ls
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+# Alias "alert" pour notifier la fin d'une commande longue
+# Exemple :
+#   sleep 10; alert
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+# Définitions d'alias personnalisés
+# Vous pouvez placer vos ajouts dans ~/.bash_aliases
+# plutôt que directement ici
+
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+
+# Activer l’auto-complétion programmable
+# (inutile si déjà activée dans /etc/bash.bashrc ou /etc/profile)
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
+
+# Afficher la date et l'heure dans la commande history
+export HISTTIMEFORMAT="%F %T : "
+
+# Synchroniser l'historique entre plusieurs terminaux ouverts
+PROMPT_COMMAND='history -a; history -n'
+
+# # DOTFILES loader, ce fichier sera chargé à chaque ouverture de session
+if [ -d "$HOME/.dotfiles/bash" ]; then
+    for file in "$HOME/.dotfiles/bash/"*.sh; do
+        [ -r "$file" ] && source "$file"
+    done
+fi

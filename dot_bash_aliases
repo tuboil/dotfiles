@@ -1,0 +1,106 @@
+# ===============================
+# Ubuntu 24.04 - Ultimate Bash Aliases
+# ===============================
+
+# ---------- SYSTEM UPDATE ----------
+sup () {
+
+    echo ""  
+    echo "🔄 Mise à jour des dépôts..."
+    sudo apt update &&
+
+    echo ""
+    echo "⬆️ Upgrade système..."
+    sudo apt full-upgrade -y &&
+
+    echo ""
+    echo "🧹 Nettoyage dépendances..."
+    sudo apt autoremove -y &&
+
+    echo ""
+    echo "🗑 Nettoyage cache..."
+    sudo apt autoclean &&
+    sudo apt clean &&
+
+    echo ""
+    echo "📦 Snap refresh..."
+    sudo snap refresh &&
+
+    echo ""
+    echo "✅ Système à jour."
+}
+
+# ---------- QUICK COMMANDS ----------
+alias c='clear'
+alias h='history'
+alias gh='history | grep'
+alias reload='source ~/.bashrc'
+
+# ---------- FILES ----------
+alias ll='ls -alF --color=auto'
+alias la='ls -A'
+alias l='ls -CF'
+alias l.='ls -d .* --color=auto'
+
+alias count='find . -type f | wc -l'
+alias size='du -sh .'
+alias tree='tree -C'
+
+# ---------- NAVIGATION ----------
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+
+# ---------- NETWORK ----------
+alias ports='ss -tulpn'
+alias myip='curl ifconfig.me'
+alias pingg='ping google.com'
+
+# ---------- PROCESS ----------
+alias psa='ps aux'
+alias mem='free -h'
+alias cpu='top'
+
+# ---------- DISK ----------
+alias df='df -h'
+alias du1='du -h --max-depth=1'
+
+# ---------- SECURITY ----------
+alias fw='sudo ufw status verbose'
+
+# ---------- GIT ----------
+alias gs='git status'
+alias ga='git add .'
+alias gc='git commit -m'
+alias gp='git push'
+alias gl='git log --oneline --graph --all'
+
+# ---------- DOCKER ----------
+alias dps='docker ps'
+alias di='docker images'
+alias dcu='docker compose up -d'
+alias dcd='docker compose down'
+
+# ---------- PYTHON ----------
+alias py='python3'
+alias venv='python3 -m venv venv'
+
+# ---------- FAST SEARCH ----------
+ftext () {
+    grep -Rin "$1" .
+}
+
+# ---------- WEATHER ----------
+weather () {
+    curl wttr.in/$1
+}
+
+# ---------- SYSTEM INFO ----------
+sysinfo () {
+    neofetch
+}
+
+# ---------- KILL PORT ----------
+killport () {
+    sudo fuser -k $1/tcp
+}
